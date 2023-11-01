@@ -35,5 +35,12 @@
 # General
 .DS_Store
 
+## User settings
+xcuserdata/
 
+<<<<<<< HEAD
 >>>>>>> 7ca580c (added ignore)
+=======
+# build
+build/
+>>>>>>> 2452cba (added build)
