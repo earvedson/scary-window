@@ -22,6 +22,8 @@ using namespace std;
 #define CALM_DOWN 2
 #define TERRIFY 3
 
+#define MIMINUM_SCARY_TIME 8
+
 
 class ScaryWIndowApp : public App {
   public:
@@ -47,6 +49,7 @@ class ScaryWIndowApp : public App {
     qtime::MovieGlRef movies[3];
     
     int currentMode = 0;
+    double lastScaryStart;
     
     // serial stuff
     void setupSerial();
@@ -56,6 +59,7 @@ class ScaryWIndowApp : public App {
 //    gl::TextureRef    mTexture;
     double mLastRead, mLastUpdate;
     bool serialEstablished;
+    
     
     // detector stuff
     int currentDistance;
@@ -75,16 +79,6 @@ void ScaryWIndowApp::setup()
     currentMode = IDLE;
     setMode(IDLE);
     
-   // currentMode = IDLE;
-    // movies[IDLE]->seekToStart();
-    // movies[IDLE]->play(true);
-    
-    
-   // fs::path moviePath = getAssetPath("Zombie_wallpaper_live.mp4");
-    //if( ! moviePath.empty() ) {
-    //    mMovie = loadMovieFile( moviePath);
-    //}
-    
      setupSerial();
 }
 
@@ -97,12 +91,6 @@ void ScaryWIndowApp::keyDown( KeyEvent event )
     else if( event.getChar() == '1' ) {
         console() << "Key 1 pressed \n" << endl;
         translateSerialToMode(IDLE);
-        //setMode(IDLE);
-        /*
-        mMovie->setActiveSegment(1, 5);
-        mMovie->setLoop(true, true);
-        mMovie->play(true);
-        */
     }
     else if( event.getChar() == '2' ) {
         console() << "Key 2 pressed \n" << endl;
@@ -127,11 +115,13 @@ void ScaryWIndowApp::keyDown( KeyEvent event )
 void ScaryWIndowApp::translateSerialToMode(const int serialMode) {
     if (currentMode != CALM_DOWN) {
         if (serialMode == IDLE) {
-            if (currentMode == SCARY) {
+            double timeOfScary = getElapsedSeconds() - lastScaryStart;
+            if ((timeOfScary > MIMINUM_SCARY_TIME) && (currentMode == SCARY)) {
                 setMode(CALM_DOWN);
             }
         } else if (serialMode == SCARY) {
             if (currentMode == IDLE) {
+                lastScaryStart = getElapsedSeconds();
                 setMode(SCARY);
             }
         }
@@ -145,10 +135,6 @@ void ScaryWIndowApp::setMode(const int nextMode) {
         movies[nextMode]->seekToStart();
         movies[nextMode]->setLoop(true);
         movies[nextMode]->play(true);
-     
-        // going with blank idle mode for now
-        // movies[nextMode]->seekToStart();
-        // movies[nextMode]->stop();
     }
     else if (nextMode == SCARY) {
         movies[nextMode]->seekToStart();

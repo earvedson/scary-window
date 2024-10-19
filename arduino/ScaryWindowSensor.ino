@@ -1,4 +1,4 @@
-// #include "rgb_lcd.h"
+#include "rgb_lcd.h"
 
 #define IDLE 0
 #define SCARY 1
@@ -24,7 +24,7 @@ const int pirPin = 7;
 // current mode based on sensor fusion
 int currentMode = 0;
 
-// rgb_lcd lcd;
+ rgb_lcd lcd;
 
 double distance = 0;
 int timeout = 0;
@@ -34,6 +34,10 @@ char received = 0;
 int byteCounter = 0;
 int pirValue = 0;
 
+const int colorR = 255;
+const int colorG = 0;
+const int colorB = 0;
+
 
 void setup() {
   pinMode(pinButton, INPUT);
@@ -41,6 +45,13 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   pinMode(pirPin,INPUT);
+
+// set up the LCD's number of columns and rows:
+    lcd.begin(16, 2);
+    lcd.setRGB(colorR, colorG, colorB);
+    // Print a message to the LCD.
+    lcd.print("ScaryWindow setup");
+
    // Initialize the readings array with zeros
   for (int i = 0; i < numReadings; i++) {
     readings[i] = 0;
@@ -51,6 +62,17 @@ void setup() {
 }
 
 void loop() {
+    //lcd.clear();
+  // show status on LCD
+  if (currentMode == IDLE) {
+    lcd.print("Idle");
+    lcd.setRGB(0, 255, 0);
+  } else if (currentMode == SCARY) {
+    lcd.print("Scary");
+    lcd.setRGB(255, 0, 0);
+  } else if (currentMode == TERRIFY) { 
+    lcd.print("Terrify");
+  }
 
   /*
   if(digitalRead(pinButton))
@@ -143,13 +165,15 @@ void loop() {
 }
 
 void establishContact() {
-//  lcd.clear();
-//  lcd.print("not connected");
+  lcd.clear();
+  lcd.print("not connected");
+
   while (Serial.available() <= 0) {
     Serial.print('*');  // send a *
     Serial.flush();
     delay(300);
   }
-//  lcd.clear();
-//  lcd.print("connected");
+
+  lcd.clear();
+  lcd.print("connected");
 }
